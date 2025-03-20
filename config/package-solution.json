@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "test-groups-client-side-solution",
+    "id": "9dcc1dbe-e3eb-4415-bd9b-4cadadffb017",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.20.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "TestGroups description"
+      },
+      "longDescription": {
+        "default": "TestGroups description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "test-groups Feature",
+        "description": "The feature that activates elements of the test-groups solution.",
+        "id": "e7274bc2-206c-41a5-b828-19963766c130",
+        "version": "1.0.0.0"
+      }
+    ],
+    "webApiPermissionRequests": [
+      {
+        "resource": "Microsoft Graph",
+        "scope": "Group.Read.All"
+      }
+    ]    
+  },
+  "paths": {
+    "zippedPackage": "solution/test-groups.sppkg"
+  }
+}
