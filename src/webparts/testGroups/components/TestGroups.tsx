@@ -27,10 +27,13 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
   //const [tags, setTags] = useState<ITag[]>([]);
 
   //const teamName = "ExpensesChat";
+  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+
+  //const teamName = "Teams Testing";
+  //const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+
   //const channelName = "General";
   const userEmail = props.context.pageContext.user.email;
-  const userId = props.context.pageContext.legacyPageContext.userId;
-  //const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
 
   //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
@@ -38,40 +41,87 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
 
     const checkMember = async (): Promise<void> => {
       try {
-        //const client = await context.msGraphClientFactory.getClient('3');
+        const client = await context.msGraphClientFactory.getClient('3');
         //const userResponse = await client.api(`/users/${userEmail}`).version('v1.0').get();
         //const userId = userResponse.id;
-
-        console.log("User ID:", userId);
-
+        const user = await client.api('/me').get();
+        const userId = user.id;
+        const today = new Date().toISOString;
         const userIsMember = groupMembers.some(member => member.id === userId);
+        
         console.log("Is user a member of the team:", userIsMember);
+        console.log("User ID:", userId);
+        console.log("groupmembers",groupMembers);
+        console.log("today",today);
 
         if (!userIsMember) {
           console.log("User is not a member, adding to the chat channel...");
     
           // Add user to the team
+          
+          /* this works but just adds the user to the team 
+
+          const directoryObject = {            
+            '@odata.id': `https://graph.microsoft.com/v1.0/directoryObjects/${userId}`
+          };
+          
+          await client.api(`/groups/${teamID}/members/$ref`)
+            .post(directoryObject);          
+         
+          */
+
+          const conversationMember = {
+              '@odata.type': '#microsoft.graph.aadUserConversationMember',
+              'user@odata.bind': `https://graph.microsoft.com/v1.0/users/${userId}`,
+              visibleHistoryStartDateTime: `${today}`,
+              roles: ['owner']
+          };
+
+          await client.api('/chats/19:3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.v2/members')
+            .post(conversationMember);
+
           /*
-          const addUserResponse = await client.api(`/teams/${teamID}/members`)
-            .version('v1.0')
-            .post({
-              headers: { "Content-Type": "application/json" },
+            const addUserResponse = await client.api(`/groups/${teamID}/members/$ref`)
+          .post({
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              "@odata.type": "#microsoft.graph.aadUserConversationMember",
+              "roles": ["member"],
+              "@odata.id": `https://graph.microsoft.com/v1.0/users/${userId}`,
+              "isHistoryIncluded": false,
+              "visibleHistoryStartDateTime": null
+            })
+          });
+          */
+
+          // Add user to the team
+          /*
+          const addUserResponse: HttpClientResponse = await client.post(
+            `https://graph.microsoft.com/v1.0/teams/${team.id}/members`, //channels/${channel.id}/members`,
+             AadHttpClient.configurations.v1,
+            {
+              headers: { 
+                "Content-Type": "application/json"
+                //Authorization : `Bearer ${accessToken}`,
+              },
               body: JSON.stringify({
                 "@odata.type": "#microsoft.graph.aadUserConversationMember",
                 "roles": ["member"],
                 "user@odata.bind": `https://graph.microsoft.com/v1.0/users/${userId}`,
-                "isHistoryIncluded": false,
+                "isHistoryIncluded": false, 
                 "visibleHistoryStartDateTime": null
               })
-            });
-
-            if (!addUserResponse.ok) {
-              const errorText = await addUserResponse.text();
-              throw new Error(`Failed to add user to the chat: ${errorText}`);
             }
-
-            console.log("User successfully added to the chat");
+          );
           */
+  
+          //if (!addUserResponse.ok) {
+          //  const errorText = await addUserResponse.text();
+          //  throw new Error(`Failed to add user to the chat: ${errorText}`);
+          //}
+
+          console.log("User successfully added to the chat");
+          
         } else {
           console.log("User is already a member of the chat channel");
         }                
@@ -85,7 +135,7 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
     const fetchGroupMembers = async ():Promise<void> => {
       try {
         const client: MSGraphClientV3 = await context.msGraphClientFactory.getClient('3');
-        const response = await client.api('/groups/68d9eb2c-06f7-40ed-bd99-a5a35fab0275/members').get();
+        const response = await client.api(`/groups/${teamID}/members`).get();
 
         if (response && response.value) {
           setGroupMembers(response.value);
