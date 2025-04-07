@@ -26,11 +26,17 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
   //const [error, setError] = useState<string | null>(null);
   //const [tags, setTags] = useState<ITag[]>([]);
 
+  // Max Prod Team
   //const teamName = "ExpensesChat";
-  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+  //const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
 
   //const teamName = "Teams Testing";
   //const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+
+
+  // Max Dev Team
+  //const teamName = "TestChat";
+  const teamID = "696dfe67-e76f-4bf8-8ab6-8abfcb16552e";
 
   //const channelName = "General";
   const userEmail = props.context.pageContext.user.email;
