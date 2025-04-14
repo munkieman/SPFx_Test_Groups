@@ -112,7 +112,7 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
           .post(conversationMember);
         */
         
-        const addUserResponse = await client.api(`/groups/${teamID}/owners/$ref`)
+        const addUserResponse = await client.api(`/groups/${teamID}/members/$ref`)
         .post({
             "@odata.id": `https://graph.microsoft.com/v1.0/users/${userId}`
         });
