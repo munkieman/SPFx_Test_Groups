@@ -8,12 +8,12 @@
       "@microsoft/teams-js": "2.24.0"
     },
     "version": "1.20.0",
-    "libraryName": "test-groups",
+    "libraryName": "test-graphclient",
     "libraryId": "9dcc1dbe-e3eb-4415-bd9b-4cadadffb017",
     "environment": "spo",
     "packageManager": "npm",
-    "solutionName": "TestGroups",
-    "solutionShortDescription": "TestGroups description",
+    "solutionName": "TestGraphClient",
+    "solutionShortDescription": "TestGraphClient description",
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
     "componentType": "webpart"

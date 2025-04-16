@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import styles from './TestGroups.module.scss';
-import type { ITestGroupsProps } from './ITestGroupsProps';
+import styles from './TestGraphClient.module.scss';
+import type { ITestGraphClientProps } from './ITestGraphClientProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { MSGraphClientV3 } from '@microsoft/sp-http';
+import { AadHttpClient, HttpClientResponse } from "@microsoft/sp-http";
 
 //interface IMember {
 //  id: string;
@@ -15,10 +16,16 @@ interface ITag {
   displayName: string;
 }
 
+interface DialogProps {
+  type: "error" | "success" | "warning" | "info";
+  message: string | null;
+  onClose: () => void;
+}
+
 //client secret value : FoA8Q~MyIfYbTcjmarpbpOjb07VBKKksYcIYwaiA
 //client secret id    : 0af0eb1b-f72c-495f-b3bd-f9273c7edf6d
 
-const TestGroups: React.FC<ITestGroupsProps> = (props) => {
+const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   const {
     description,
     isDarkTheme,
@@ -33,6 +40,9 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
   //const [loading, setLoading] = useState<boolean>(false);
   //const [error, setError] = useState<string | null>(null);
   const [tags, setTags] = useState<ITag[]>([]);
+  const [dialogMessage, setDialogMessage] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [dialogType, setDialogType] = useState<"error" | "success" | "warning" | "info">("info"); // Default type
 
   // Max Prod Team
   //const teamName = "ExpensesChat";
@@ -53,7 +63,28 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
 
   //https://teams.microsoft.com/l/channel/19%3Aec62a56976504a9da063458459e73b34%40thread.tacv2/General?groupId=f5de9aad-7f98-498d-a5a0-b1a59254265c&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
+  const Dialog: React.FC<DialogProps> = ({ type, message, onClose }) => {
+    if (!message) return null;
+  
+    return (
+      <div className={styles.dialogOverlay}>
+        <div className={`${styles.dialogBox} ${styles[type]}`}>
+          <p>{message}</p>
+          <button onClick={onClose}>Close</button>
+        </div>
+      </div>
+    );
+  };
+
+  const showDialog = (type: "error" | "success" | "warning" | "info", message: string) => {
+    setDialogType(type);
+    setDialogMessage(message);
+    setIsDialogOpen(true);
+  };
+
   const getTeamTags = (): void => {  
+    console.log("Fetching tags for team ID:", teamID);
+
     context.msGraphClientFactory
       .getClient('3')
       .then((client: MSGraphClientV3): void => {
@@ -70,8 +101,9 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
       });
   };
 
-  const checkMember = async (): Promise<void> => {
-    try {
+  const addMember = async (): Promise<void> => {
+    /*
+    try {      
       const client = await context.msGraphClientFactory.getClient('3');
       //const userResponse = await client.api(`/users/${userEmail}`).version('v1.0').get();
       //const userId = userResponse.id;
@@ -96,11 +128,8 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
         };
         
         await client.api(`/groups/${teamID}/members/$ref`)
-          .post(directoryObject);          
-       
-        */
-
-        /*
+          .post(directoryObject);                
+        
         const conversationMember = {
             '@odata.type': '#microsoft.graph.aadUserConversationMember',
             'user@odata.bind': `https://graph.microsoft.com/v1.0/users/${userId}`,
@@ -109,8 +138,7 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
         };
 
         await client.api('/chats/19:3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.v2/members')
-          .post(conversationMember);
-        */
+          .post(conversationMember);    
         
         const addUserResponse = await client.api(`/groups/${teamID}/members/$ref`)
         .post({
@@ -123,7 +151,7 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
             //"visibleHistoryStartDateTime": `${today}`  //"visibleHistoryStartDateTime": "2025-04-10T14:58:56.284Z"
 
         // Add user to the team
-        /*
+        
         const addUserResponse: HttpClientResponse = await client.post(
           `https://graph.microsoft.com/v1.0/teams/${team.id}/members`, //channels/${channel.id}/members`,
            AadHttpClient.configurations.v1,
@@ -141,7 +169,6 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
             })
           }
         );
-        */
 
         if (!addUserResponse.ok) {
           const errorText = await addUserResponse.text();
@@ -152,12 +179,92 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
         
       } else {
         console.log("User is already a member of the chat channel");
+        //getTeamTags();
       }                
-      getTeamTags();
+      //getTeamTags();
 
     } catch (error: any) {
       console.error("Error in checkMember:", error.message);
     }
+    */
+
+    const client = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+
+    //Fetch the user ID
+    const userResponse = await client.get(
+      `https://graph.microsoft.com/v1.0/users/${userEmail}`,
+      AadHttpClient.configurations.v1
+    );
+    const userData = await userResponse.json();
+    const userId = userData.id;      
+
+    let userIsMember = false;
+    let membersUrl = `https://graph.microsoft.com/v1.0/teams/${teamID}/members`;
+
+    console.log("userID",userId,userData);
+
+    do {
+      // Fetch team members
+      const membersResponse = await client.get(membersUrl, AadHttpClient.configurations.v1);
+      if (!membersResponse.ok) {
+        throw new Error("Failed to fetch members");
+      }
+      const membersData = await membersResponse.json();
+      
+      console.log("Members Data:", membersData);  // Log member data for debugging
+      console.log("Comparing userId:", userId);  // Log userId for debugging
+
+      // Check if the user is a member in this page of members
+      userIsMember = membersData.value.some((m: any) => m.id === userId);
+  
+      // If the user is found, exit the loop
+      if (userIsMember) {
+        console.log("User is a member of the team!");
+        break;
+      }
+  
+      // If pagination exists, update the membersUrl to the next page
+      membersUrl = membersData["@odata.nextLink"];
+      
+    } while (membersUrl && !userIsMember); 
+
+    if (!userIsMember) {
+      showDialog("info","Adding you to the chat channel. Please wait...");    
+      console.log("User is not a member, adding to the chat channel...");
+
+      // Add user to the team
+      const addUserResponse: HttpClientResponse = await client.post(
+        `https://graph.microsoft.com/v1.0/teams/${teamID}/members`, //channels/${channel.id}/members`,
+         AadHttpClient.configurations.v1,
+        {
+          headers: { 
+            "Content-Type": "application/json"
+            //Authorization : `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            "@odata.type": "#microsoft.graph.aadUserConversationMember",
+            "roles": ["member"],
+            "user@odata.bind": `https://graph.microsoft.com/v1.0/users/${userId}`,
+            //"isHistoryIncluded": false, 
+            //"visibleHistoryStartDateTime": null
+          })
+        }
+      );
+
+      if (!addUserResponse.ok) {
+        const errorText = await addUserResponse.text();
+        showDialog("error","Failed to add user to the chat: " + errorText);
+        throw new Error(`Failed to add user to the chat: ${errorText}`);
+      }
+
+      showDialog("success","You have successfully joined the chat!");
+
+      //setIsChatDisabled(true);
+      console.log("User successfully added to the chat");
+    }else{
+      showDialog("success","You are already a member of this chat channel.");        
+      console.log("User is already a member of the chat channel");          
+    }      
   };  
 
   useEffect(() => {
@@ -169,6 +276,7 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
 
         if (response && response.value) {
           setGroupMembers(response.value);
+          getTeamTags();
         } else {
           console.warn('No group members found.');
         }
@@ -177,50 +285,25 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
       }
     };
 
-/*
-
-    const fetchChannelMembers = async ():Promise<void> => {
-      try {
-        //setLoading(true);
-  
-        // Get Microsoft Graph API client
-        const client : MSGraphClientV3 = await context.msGraphClientFactory.getClient('3');
-  
-        // Get joined teams
-        const teamsResponse = await client.api('/me/joinedTeams')
-          .version('v1.0')
-          .get();
-        
-        if (!teamsResponse) throw new Error("Failed to fetch teams");
-  
-      } catch (err: any) {
-        console.log("Error fetching channel members:", err);
-        //setError(err.message);
-      } finally {
-        //setLoading(false);
-      }
-    };
-    
-*/
-
     fetchGroupMembers();
     //if (groupMembers.length > 0) {
     //}
 
-    //getTeamTags();
-
   }, [context]);
 
   return (
-    <section className={`${styles.testGroups} ${hasTeamsContext ? styles.teams : ''}`}>
+    <section className={`${styles.testGraphClient} ${hasTeamsContext ? styles.teams : ''}`}>
       <div className={styles.welcome}>
+        <div>
+          {isDialogOpen && <Dialog type={dialogType} message={dialogMessage} onClose={() => setIsDialogOpen(false)} />}
+        </div>
         <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
         <h2>Well done, {escape(userDisplayName)}!</h2>
         <div>{environmentMessage}</div>
         <div>Web part property value: <strong>{escape(description)}</strong></div>
         <div>User Email: {escape(userEmail)}</div>
       </div>
-      <button onClick={checkMember}>Add Owner</button>
+      <button onClick={addMember}>Join Chat</button>
       <div>
         <h4>Group Members:</h4>
         {groupMembers.length > 0 ? (
@@ -253,4 +336,4 @@ const TestGroups: React.FC<ITestGroupsProps> = (props) => {
   );
 };
 
-export default TestGroups;
+export default TestGraphClient;

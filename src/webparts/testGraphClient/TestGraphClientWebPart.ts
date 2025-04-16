@@ -9,20 +9,20 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'TestGroupsWebPartStrings';
-import TestGroups from './components/TestGroups';
-import { ITestGroupsProps } from './components/ITestGroupsProps';
+import TestGroups from './components/TestGraphClient';
+import { ITestGraphClientProps } from './components/ITestGraphClientProps';
 
-export interface ITestGroupsWebPartProps {
+export interface ITestGraphClientWebPartProps {
   description: string;
 }
 
-export default class TestGroupsWebPart extends BaseClientSideWebPart<ITestGroupsWebPartProps> {
+export default class TestGraphClientWebPart extends BaseClientSideWebPart<ITestGraphClientWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
   public render(): void {
-    const element: React.ReactElement<ITestGroupsProps> = React.createElement(
+    const element: React.ReactElement<ITestGraphClientProps> = React.createElement(
       TestGroups,
       {
         description: this.properties.description,

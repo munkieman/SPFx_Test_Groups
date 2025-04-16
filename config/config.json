@@ -5,14 +5,14 @@
     "test-groups-web-part": {
       "components": [
         {
-          "entrypoint": "./lib/webparts/testGroups/TestGroupsWebPart.js",
-          "manifest": "./src/webparts/testGroups/TestGroupsWebPart.manifest.json"
+          "entrypoint": "./lib/webparts/testGraphClient/TestGraphClientWebPart.js",
+          "manifest": "./src/webparts/testGraphClient/TestGraphClientWebPart.manifest.json"
         }
       ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "TestGroupsWebPartStrings": "lib/webparts/testGroups/loc/{locale}.js"
+    "TestGroupsWebPartStrings": "lib/webparts/testGraphClient/loc/{locale}.js"
   }
 }

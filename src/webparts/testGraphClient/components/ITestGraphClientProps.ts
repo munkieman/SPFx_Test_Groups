@@ -1,4 +1,4 @@
-export interface ITestGroupsProps {
+export interface ITestGraphClientProps {
   description: string;
   isDarkTheme: boolean;
   environmentMessage: string;
