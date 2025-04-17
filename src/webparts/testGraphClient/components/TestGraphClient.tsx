@@ -4,23 +4,26 @@ import styles from './TestGraphClient.module.scss';
 import type { ITestGraphClientProps } from './ITestGraphClientProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { MSGraphClientV3 } from '@microsoft/sp-http';
-import { AadHttpClient, HttpClientResponse } from "@microsoft/sp-http";
+import { AadHttpClient,HttpClientResponse } from "@microsoft/sp-http";
 
 //interface IMember {
 //  id: string;
 //  displayName: string;
 //}
 
+
 interface ITag {
   id: string;
   displayName: string;
 }
 
+/*
 interface DialogProps {
   type: "error" | "success" | "warning" | "info";
   message: string | null;
   onClose: () => void;
 }
+*/
 
 //client secret value : FoA8Q~MyIfYbTcjmarpbpOjb07VBKKksYcIYwaiA
 //client secret id    : 0af0eb1b-f72c-495f-b3bd-f9273c7edf6d
@@ -40,17 +43,24 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   //const [loading, setLoading] = useState<boolean>(false);
   //const [error, setError] = useState<string | null>(null);
   const [tags, setTags] = useState<ITag[]>([]);
-  const [dialogMessage, setDialogMessage] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [dialogType, setDialogType] = useState<"error" | "success" | "warning" | "info">("info"); // Default type
+  //const [dialogMessage, setDialogMessage] = useState<string | null>(null);
+  //const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  //const [dialogType, setDialogType] = useState<"error" | "success" | "warning" | "info">("info"); // Default type
 
   // Max Prod Team
-  //const teamName = "ExpensesChat";
-  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+  const teamName = "ExpensesChat";
+  const channelName = "General";
 
+  //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+  //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+
+  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+  //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
+  const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQwZWQtYmQ5OS1hNWEzNWZhYjAyNzUjI3RndlFsV3dmTg==";
+  
+  
   //const teamName = "Teams Testing";
   //const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
-
 
   // Max Dev Team
   //const teamName = "TestChat";
@@ -62,7 +72,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
   //https://teams.microsoft.com/l/channel/19%3Aec62a56976504a9da063458459e73b34%40thread.tacv2/General?groupId=f5de9aad-7f98-498d-a5a0-b1a59254265c&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
-
+/*
   const Dialog: React.FC<DialogProps> = ({ type, message, onClose }) => {
     if (!message) return null;
   
@@ -81,6 +91,8 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
     setDialogMessage(message);
     setIsDialogOpen(true);
   };
+*/
+
 
   const getTeamTags = (): void => {  
     console.log("Fetching tags for team ID:", teamID);
@@ -97,11 +109,42 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
               return;
             }
             setTags(response.value);
+            console.log('Tags:', response.value);
           });
       });
   };
 
   const addMember = async (): Promise<void> => {
+    const client = await context.msGraphClientFactory.getClient('3');
+    const user = await client.api('/me').get();
+    const userId = user.id;
+
+    try {
+      const apiUrl = `/groups/${teamID}/members/$ref`;
+      const requestBody = {
+        "@odata.id": `https://graph.microsoft.com/v1.0/users/${userId}`
+      };
+
+      // Custom headers including x-ms-throttle-priority
+      const customHeaders = {
+        "x-ms-throttle-priority": "High"
+      };
+
+      // Use the Graph Client V3 to make the API call with custom headers
+      await client
+        .api(apiUrl)
+        .headers(customHeaders) // Add the custom headers here
+        .post(requestBody);
+
+      alert('User added to the team successfully with high priority');
+      
+      getTeamTags(); // Fetch tags after adding the user
+
+    } catch (error) {
+      console.error('Error adding user to the team:', error);
+      alert(`Failed to add user to the team. Error: ${error.message}`);
+    }
+
     /*
     try {      
       const client = await context.msGraphClientFactory.getClient('3');
@@ -188,6 +231,169 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
     }
     */
 
+  };  
+
+  const sendMessageToTeams = async (message: string) => {
+    try {
+      const client = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+  
+      // Fetch Team ID
+      const teamsResponse: HttpClientResponse = await client.get(
+        `https://graph.microsoft.com/v1.0/me/joinedTeams`,
+        AadHttpClient.configurations.v1
+      );
+      if (!teamsResponse.ok) throw new Error("Failed to fetch teams");
+  
+      const teamsData = await teamsResponse.json();
+      const team = teamsData.value.find((t: any) => t.displayName === teamName);
+      if (!team) throw new Error(`Team "${teamName}" not found`);
+  
+      // Fetch Channel ID
+      const channelsResponse: HttpClientResponse = await client.get(
+        `https://graph.microsoft.com/v1.0/teams/${team.id}/channels`,
+        AadHttpClient.configurations.v1
+      );
+      if (!channelsResponse.ok) throw new Error("Failed to fetch channels");
+  
+      const channelsData = await channelsResponse.json();
+      const channel = channelsData.value.find((c: any) => c.displayName === channelName);
+      if (!channel) throw new Error(`Channel "${channelName}" not found`);
+
+      console.log("sendmsg Team:", team);
+      console.log("sendmsg Channel:", channel);
+  
+      // 🔥 POST request to send message with @expenses mention
+      const mentionId = 1; // You can keep this as 0 or another unique identifier, but it must match the ID in the <at> tag.
+      const tagHTML = "<at id='1'>expenses</at> ";
+
+      console.log("Request Payload:", {
+        body: {
+          contentType: "html",
+          content: tagHTML + message,
+        },
+        mentions: [
+          {
+            id: mentionId,
+            mentionText: "expenses",
+            mentioned: {
+              tag: {
+                id: tagID,
+                displayName: "expenses",
+              },
+            },
+          },
+        ],
+      });
+
+      const response = await client.post(
+        `https://graph.microsoft.com/v1.0/teams/${team.id}/channels/${channel.id}/messages`,
+        AadHttpClient.configurations.v1,
+        {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            body: {
+              contentType: "html",
+              content: message,
+            },
+          }),
+        }
+      );
+
+      console.log("Mention ID:", mentionId);
+
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to send message: ${errorText}`);
+      }
+  
+    } catch (error: any) {
+      console.error("Error sending message:", error.message);
+    }
+
+
+  }
+
+  useEffect(() => {
+
+    const fetchGroupMembers = async ():Promise<void> => {
+      try {
+        const client: MSGraphClientV3 = await context.msGraphClientFactory.getClient('3');
+        const response = await client.api(`/groups/${teamID}/members`).get();
+
+        if (response && response.value) {
+          setGroupMembers(response.value);
+          //getTeamTags();
+        } else {
+          console.warn('No group members found.');
+        }
+      } catch (error) {
+        console.error('Error fetching group members:', error);
+      }
+    };
+
+    fetchGroupMembers();
+    getTeamTags(); // Fetch tags when the component mounts
+    sendMessageToTeams("Hello from the web part!"); // Send a message to the Teams channel
+
+    //if (groupMembers.length > 0) {
+    //}
+
+  }, [context]);
+
+  return (
+    <section className={`${styles.testGraphClient} ${hasTeamsContext ? styles.teams : ''}`}>
+      <div className={styles.welcome}>
+        <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
+        <h2>Well done, {escape(userDisplayName)}!</h2>
+        <div>{environmentMessage}</div>
+        <div>Web part property value: <strong>{escape(description)}</strong></div>
+        <div>User Email: {escape(userEmail)}</div>
+      </div>
+      <button onClick={addMember}>Join Chat</button>
+      <div>
+        <h4>Group Members:</h4>
+        {groupMembers.length > 0 ? (
+          <ul>
+            {groupMembers.map((member, index) => (
+              <li key={index}>
+                {member.displayName} ({member.mail || 'No email available'})
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No members found in this group.</p>
+        )}
+      </div>
+      <div>
+        <h4>Tags</h4>
+        
+        {tags.length > 0 ? (
+          <ul>
+            {tags.map((tag, index) => (
+              <li key={index}>
+                {tag.displayName} : ({tag.id})
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No tags found in this team.</p>
+        )}
+        
+      </div>           
+    </section>
+  );
+};
+
+export default TestGraphClient;
+
+
+/*
+        <div>
+          {isDialogOpen && <Dialog type={dialogType} message={dialogMessage} onClose={() => setIsDialogOpen(false)} />}
+        </div>
+
+
     const client = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
 
     //Fetch the user ID
@@ -265,75 +471,5 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       showDialog("success","You are already a member of this chat channel.");        
       console.log("User is already a member of the chat channel");          
     }      
-  };  
 
-  useEffect(() => {
-
-    const fetchGroupMembers = async ():Promise<void> => {
-      try {
-        const client: MSGraphClientV3 = await context.msGraphClientFactory.getClient('3');
-        const response = await client.api(`/groups/${teamID}/members`).get();
-
-        if (response && response.value) {
-          setGroupMembers(response.value);
-          getTeamTags();
-        } else {
-          console.warn('No group members found.');
-        }
-      } catch (error) {
-        console.error('Error fetching group members:', error);
-      }
-    };
-
-    fetchGroupMembers();
-    //if (groupMembers.length > 0) {
-    //}
-
-  }, [context]);
-
-  return (
-    <section className={`${styles.testGraphClient} ${hasTeamsContext ? styles.teams : ''}`}>
-      <div className={styles.welcome}>
-        <div>
-          {isDialogOpen && <Dialog type={dialogType} message={dialogMessage} onClose={() => setIsDialogOpen(false)} />}
-        </div>
-        <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
-        <h2>Well done, {escape(userDisplayName)}!</h2>
-        <div>{environmentMessage}</div>
-        <div>Web part property value: <strong>{escape(description)}</strong></div>
-        <div>User Email: {escape(userEmail)}</div>
-      </div>
-      <button onClick={addMember}>Join Chat</button>
-      <div>
-        <h4>Group Members:</h4>
-        {groupMembers.length > 0 ? (
-          <ul>
-            {groupMembers.map((member, index) => (
-              <li key={index}>
-                {member.displayName} ({member.mail || 'No email available'})
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No members found in this group.</p>
-        )}
-      </div>
-      <div>
-        <h4>Tags</h4>
-        {tags.length > 0 ? (
-          <ul>
-            {tags.map((tag, index) => (
-              <li key={index}>
-                {tag.displayName} : ({tag.id})
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No tags found in this team.</p>
-        )}
-      </div>           
-    </section>
-  );
-};
-
-export default TestGraphClient;
+*/
