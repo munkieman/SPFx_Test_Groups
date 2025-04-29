@@ -54,13 +54,15 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
   //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
-  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+  //const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
   //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
   //const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQwZWQtYmQ5OS1hNWEzNWZhYjAyNzUjI3RndlFsV3dmTg==";
   
   
   //const teamName = "Teams Testing";
-  //const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+  const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+  //https://teams.microsoft.com/l/team/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/conversations?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+
 
   // Max Dev Team
   //const teamName = "TestChat";
@@ -93,6 +95,23 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   };
 */
 
+  // Function to check if the user is a member of the team
+  const isUserTeamMember = async (): Promise<boolean> => {
+    try {
+      const client = await context.msGraphClientFactory.getClient('3');
+      const response = await client.api(`/groups/${teamID}/members`).get();
+      const members = response.value || [];
+      const user = await client.api('/me').get();
+      const userId = user.id;
+
+      const userIsMember = members.some((member: any) => member.id === userId);
+      console.log("Is user a member of the team:", userIsMember);
+      return userIsMember;
+    } catch (error) {
+      console.error("Error checking team membership:", error);
+      return false;
+    }
+  };
 
   const getTeamTags = async (): Promise<void> => {  
     alert("Fetching tags for team ID: "+teamID);
@@ -231,10 +250,6 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         .post(requestBody);
 
       alert('User added to the team successfully with high priority');
-      setTimeout(async() => {
-        await getTeamTags(); // Fetch tags after adding the user
-        //await sendMessageToTeams("Hello from the web part!"); // Send a message to the Teams channel          
-      }, 3000); 
       
     } catch (error) {
       console.error('Error adding user to the team:', error);
@@ -243,6 +258,21 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
 
   };  
 
+  // Function to ensure user is a member before fetching tags
+  const ensureMembershipAndFetchTags = async (): Promise<void> => {
+    const userIsMember = await isUserTeamMember();
+    if (userIsMember) {
+      console.log("User is a member. Fetching tags...");
+      await getTeamTags();
+    } else {
+      console.log("User is not a member. Adding to the team...");
+      //await addMember();
+      // Optionally fetch tags after adding the user
+      //setTimeout(async () => {
+      //  await getTeamTags();
+      //}, 3000); // Delay to ensure the user is added before fetching tags
+    }
+  };  
 
   useEffect(() => {
 
@@ -263,6 +293,13 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
     };
 
     fetchGroupMembers();
+    ensureMembershipAndFetchTags(); 
+    //.then(async() => {
+    //  setTimeout(async() => {
+    //    await getTeamTags(); // Fetch tags after adding the user
+        //await sendMessageToTeams("Hello from the web part!"); // Send a message to the Teams channel          
+    //  }, 10000); // Delay to ensure user is added before fetching tags  
+    //});
 
   }, [context]);
 
@@ -284,6 +321,9 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         <div>User Email: {escape(userEmail)}</div>
       </div>
       <button onClick={addMember}>Join Chat</button>
+      <div>
+      </div>
+      <button onClick={getTeamTags}>Post</button>
       <div>
         <h4>Group Members:</h4>
         {groupMembers.length > 0 ? (
