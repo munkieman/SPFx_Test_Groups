@@ -61,6 +61,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   
   const teamName = "Teams Testing";
   const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+  const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQ5MjgtOGYyYi0xNDEwMmU1YWQ2Y2EjI3RMRnI2cXpQdw==";
   //https://teams.microsoft.com/l/team/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/conversations?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
 
@@ -192,7 +193,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
             mentionText: "expenses",
             mentioned: {
               tag: {
-                id: tags[0].id,
+                id: tagID,
                 displayName: "expenses",
               },
             },
@@ -208,8 +209,20 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
           body: JSON.stringify({
             body: {
               contentType: "html",
-              content: message,
+              content: tagHTML+message,
             },
+            mentions: [
+              {
+                id: mentionId,
+                mentionText: "expenses",
+                mentioned: {
+                  tag: {
+                    id: tagID,
+                    displayName: "expenses",
+                  },
+                },
+              },
+            ],
           }),
         }
       );
