@@ -64,15 +64,16 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   
   const teamName = "Teams Testing";
   const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+  const channelID = "19:wREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1@thread.tacv2";
   const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQ5MjgtOGYyYi0xNDEwMmU1YWQ2Y2EjI3RMRnI2cXpQdw==";
   //https://teams.microsoft.com/l/team/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/conversations?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
-
+  //https://teams.microsoft.com/l/channel/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/General?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
   // Max Dev Team
   //const teamName = "TestChat";
   //const teamID = "696dfe67-e76f-4bf8-8ab6-8abfcb16552e";
 
-  const channelName = "General";
+  //const channelName = "General";
   const userEmail = props.context.pageContext.user.email;
 
   //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
@@ -155,9 +156,10 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   const sendMessageToTeams = async () : Promise<void> => {
     try {
 
-      const aadClient = context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+      const client = context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
       const message = "Hello from the web part!";
 
+      console.log(client);
       // Fetch Team ID
       //const teamsResponse: HttpClientResponse = await aadClient.get(
       //  `https://graph.microsoft.com/v1.0/me/joinedTeams`,
@@ -170,7 +172,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       //if (!team) throw new Error(`Team "${teamName}" not found`);
   
       // Fetch Team Tags (To get @expenses Tag ID)
-      const tagsResponse: HttpClientResponse = await aadClient.get(
+      const tagsResponse: HttpClientResponse = await client.get(
         `https://graph.microsoft.com/v1.0/teams/${teamID}/tags`,
         AadHttpClient.configurations.v1
       );
@@ -183,18 +185,18 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       if (!expensesTag) throw new Error(`Tag "@expenses" not found in team "${teamName}"`);
 
       // Fetch Channel ID
-      const channelsResponse: HttpClientResponse = await aadClient.get(
-        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels`,
-        AadHttpClient.configurations.v1
-      );
-      if (!channelsResponse.ok) throw new Error("Failed to fetch channels");
+      //const channelsResponse: HttpClientResponse = await client.get(
+      //  `https://graph.microsoft.com/v1.0/teams/${teamID}/channels`,
+      //  AadHttpClient.configurations.v1
+      //);
+      //if (!channelsResponse.ok) throw new Error("Failed to fetch channels");
   
-      const channelsData = await channelsResponse.json();
-      const channel = channelsData.value.find((c: any) => c.displayName === channelName);
-      if (!channel) throw new Error(`Channel "${channelName}" not found`);
+      //const channelsData = await channelsResponse.json();
+      //const channel = channelsData.value.find((c: any) => c.displayName === channelName);
+      //if (!channel) throw new Error(`Channel "${channelName}" not found`);
 
-      console.log("sendmsg Team:", teamName);
-      console.log("sendmsg Channel:", channel);
+      //console.log("sendmsg Team:", teamName);
+      //console.log("sendmsg Channel:", channel);
   
       // 🔥 POST request to send message with @expenses mention
       const mentionId = 1; // You can keep this as 0 or another unique identifier, but it must match the ID in the <at> tag.
@@ -219,8 +221,8 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         ],
       });
 
-      const response = await aadClient.post(
-        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels/${channel.id}/messages`,
+      const response = await client.post(
+        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels/${channelID}messages`,
         AadHttpClient.configurations.v1,
         {
           headers: { "Content-Type": "application/json" },
