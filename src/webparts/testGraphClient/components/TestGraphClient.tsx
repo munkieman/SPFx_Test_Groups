@@ -47,6 +47,9 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   //const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   //const [dialogType, setDialogType] = useState<"error" | "success" | "warning" | "info">("info"); // Default type
 
+  //const client = context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+  //const aadClient = context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+
   // Max Prod Team
   //const teamName = "ExpensesChat";
   //const channelName = "General";
@@ -149,24 +152,39 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   };
 
   
-  const sendMessageToTeams = async (message: string) : Promise<void> => {
+  const sendMessageToTeams = async () : Promise<void> => {
     try {
-      const client = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
-  
+
+      const aadClient = context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+      const message = "Hello from the web part!";
+
       // Fetch Team ID
-      const teamsResponse: HttpClientResponse = await client.get(
-        `https://graph.microsoft.com/v1.0/me/joinedTeams`,
+      //const teamsResponse: HttpClientResponse = await aadClient.get(
+      //  `https://graph.microsoft.com/v1.0/me/joinedTeams`,
+      //  AadHttpClient.configurations.v1
+      //);
+      //if (!teamsResponse.ok) throw new Error("Failed to fetch teams");
+  
+      //const teamsData = await teamsResponse.json();
+      //const team = teamsData.value.find((t: any) => t.displayName === teamName);
+      //if (!team) throw new Error(`Team "${teamName}" not found`);
+  
+      // Fetch Team Tags (To get @expenses Tag ID)
+      const tagsResponse: HttpClientResponse = await aadClient.get(
+        `https://graph.microsoft.com/v1.0/teams/${teamID}/tags`,
         AadHttpClient.configurations.v1
       );
-      if (!teamsResponse.ok) throw new Error("Failed to fetch teams");
-  
-      const teamsData = await teamsResponse.json();
-      const team = teamsData.value.find((t: any) => t.displayName === teamName);
-      if (!team) throw new Error(`Team "${teamName}" not found`);
-  
+      if (!tagsResponse.ok) throw new Error("Failed to fetch tags");
+
+      const tagsData = await tagsResponse.json();
+      const expensesTag = tagsData.value.find((tag: any) => tag.displayName === "Expenses");
+      console.log("Expenses Tag:", expensesTag);
+
+      if (!expensesTag) throw new Error(`Tag "@expenses" not found in team "${teamName}"`);
+
       // Fetch Channel ID
-      const channelsResponse: HttpClientResponse = await client.get(
-        `https://graph.microsoft.com/v1.0/teams/${team.id}/channels`,
+      const channelsResponse: HttpClientResponse = await aadClient.get(
+        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels`,
         AadHttpClient.configurations.v1
       );
       if (!channelsResponse.ok) throw new Error("Failed to fetch channels");
@@ -175,12 +193,12 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       const channel = channelsData.value.find((c: any) => c.displayName === channelName);
       if (!channel) throw new Error(`Channel "${channelName}" not found`);
 
-      console.log("sendmsg Team:", team);
+      console.log("sendmsg Team:", teamName);
       console.log("sendmsg Channel:", channel);
   
       // 🔥 POST request to send message with @expenses mention
       const mentionId = 1; // You can keep this as 0 or another unique identifier, but it must match the ID in the <at> tag.
-      const tagHTML = "<at id='1'>expenses</at> ";
+      const tagHTML = "<at id='1'>Expenses</at> ";
 
       console.log("Request Payload:", {
         body: {
@@ -190,19 +208,19 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         mentions: [
           {
             id: mentionId,
-            mentionText: "expenses",
+            mentionText: "Expenses",
             mentioned: {
               tag: {
-                id: tagID,
-                displayName: "expenses",
+                id: expensesTag.id,
+                displayName: "Expenses",
               },
             },
           },
         ],
       });
 
-      const response = await client.post(
-        `https://graph.microsoft.com/v1.0/teams/${team.id}/channels/${channel.id}/messages`,
+      const response = await aadClient.post(
+        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels/${channel.id}/messages`,
         AadHttpClient.configurations.v1,
         {
           headers: { "Content-Type": "application/json" },
@@ -311,10 +329,10 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
     fetchGroupMembers();
     ensureMembershipAndFetchTags(); 
     //.then(async() => {
-      setTimeout(async() => {
+      //setTimeout(async() => {
     //    await getTeamTags(); // Fetch tags after adding the user
-        await sendMessageToTeams("Hello from the web part!"); // Send a message to the Teams channel          
-      }, 3000); // Delay to ensure user is added before fetching tags  
+        //await sendMessageToTeams("Hello from the web part!"); // Send a message to the Teams channel          
+      //}, 3000); // Delay to ensure user is added before fetching tags  
     //});
 
   }, [context]);
@@ -338,7 +356,8 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       </div>
       <div>
         <button onClick={addMember}>Join Chat</button>     
-        <button onClick={getTeamTags}>Post</button>
+        <button onClick={getTeamTags}>Get Tags</button>
+        <button onClick={sendMessageToTeams}>Post Msg</button>
       </div>
       <div>
         <h4>Group Members:</h4>
