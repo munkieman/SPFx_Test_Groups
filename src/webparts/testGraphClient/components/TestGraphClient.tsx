@@ -53,8 +53,8 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   // Max Prod Team
   //const teamName = "ExpensesChat";
   //const channelName = "General";
-  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
-  const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
+  //const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+  //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
   //const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQwZWQtYmQ5OS1hNWEzNWZhYjAyNzUjI3RndlFsV3dmTg==";
   //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
   //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
@@ -62,8 +62,8 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
 
   
   //const teamName = "Teams Testing";
-  //const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
-  //const channelID = "19:wREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1@thread.tacv2";
+  const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+  const channelID = "19:wREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1@thread.tacv2";
   //const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQ5MjgtOGYyYi0xNDEwMmU1YWQ2Y2EjI3RMRnI2cXpQdw==";
   //https://teams.microsoft.com/l/team/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/conversations?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
   //https://teams.microsoft.com/l/channel/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/General?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
@@ -257,7 +257,31 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
     }
     return;
   }
-
+  
+  const addMember = async (): Promise<void> => {
+    const client = await context.msGraphClientFactory.getClient('3');
+    const user = await client.api('/me').get();
+    const userId = user.id;
+  
+    try {
+      const apiUrl = `/teams/${teamID}/channels/${channelID}/members`; // Adding to a Teams channel chat
+      const requestBody = {
+        "@odata.type": "#microsoft.graph.aadUserConversationMember",
+        "roles": ["member"], // Specify roles if needed
+        "user@odata.bind": `https://graph.microsoft.com/v1.0/users/${userId}`
+      };
+  
+      // Use the Graph Client V3 to make the API call
+      await client.api(apiUrl).post(requestBody);
+  
+      alert('User added to the channel successfully!');
+    } catch (error) {
+      console.error('Error adding user to the channel:', error);
+      alert(`Failed to add user to the channel. Error: ${error.message}`);
+    }
+  };
+  
+/*  
   const addMember = async (): Promise<void> => {
     const client = await context.msGraphClientFactory.getClient('3');
     const user = await client.api('/me').get();
@@ -289,8 +313,8 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       console.error('Error adding user to the team:', error);
       alert(`Failed to add user to the team. Error: ${error.message}`);
     }
-
   };  
+*/
 
   // Function to ensure user is a member before fetching tags
   const ensureMembershipAndFetchTags = async (): Promise<void> => {
