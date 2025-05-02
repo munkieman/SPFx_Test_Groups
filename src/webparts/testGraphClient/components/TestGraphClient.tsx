@@ -4,7 +4,7 @@ import styles from './TestGraphClient.module.scss';
 import type { ITestGraphClientProps } from './ITestGraphClientProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { MSGraphClientV3 } from '@microsoft/sp-http';
-import { AadHttpClient,HttpClientResponse } from "@microsoft/sp-http";
+//import { AadHttpClient } from "@microsoft/sp-http";
 
 //interface IMember {
 //  id: string;
@@ -53,33 +53,33 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   // Max Prod Team
   //const teamName = "ExpensesChat";
   //const channelName = "General";
-
-  //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
-  //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
-
+  const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
+  //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2";
   //const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
   //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
   //const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQwZWQtYmQ5OS1hNWEzNWZhYjAyNzUjI3RndlFsV3dmTg==";
+  //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+  //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+  //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+
   
-  
-  const teamName = "Teams Testing";
-  const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
-  const channelID = "19:wREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1@thread.tacv2";
-  const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQ5MjgtOGYyYi0xNDEwMmU1YWQ2Y2EjI3RMRnI2cXpQdw==";
+  //const teamName = "Teams Testing";
+  //const teamID = "a3cce0fc-52f7-4928-8f2b-14102e5ad6ca";
+  //const channelID = "19:wREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1@thread.tacv2";
+  //const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQ5MjgtOGYyYi0xNDEwMmU1YWQ2Y2EjI3RMRnI2cXpQdw==";
   //https://teams.microsoft.com/l/team/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/conversations?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
   //https://teams.microsoft.com/l/channel/19%3AwREFwWCHiIj-qfeAUqedf6wIatZTFqg0CgOwMN6CQxc1%40thread.tacv2/General?groupId=a3cce0fc-52f7-4928-8f2b-14102e5ad6ca&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
 
   // Max Dev Team
   //const teamName = "TestChat";
   //const teamID = "696dfe67-e76f-4bf8-8ab6-8abfcb16552e";
-
   //const channelName = "General";
+  //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+  //https://teams.microsoft.com/l/channel/19%3Aec62a56976504a9da063458459e73b34%40thread.tacv2/General?groupId=f5de9aad-7f98-498d-a5a0-b1a59254265c&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
+
   const userEmail = props.context.pageContext.user.email;
 
-  //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
-
-  //https://teams.microsoft.com/l/channel/19%3Aec62a56976504a9da063458459e73b34%40thread.tacv2/General?groupId=f5de9aad-7f98-498d-a5a0-b1a59254265c&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
-/*
+ /*
   const Dialog: React.FC<DialogProps> = ({ type, message, onClose }) => {
     if (!message) return null;
   
@@ -156,10 +156,11 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   const sendMessageToTeams = async () : Promise<void> => {
     try {
 
-      const client = context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
-      const message = "Hello from the web part!";
+      //const aadClient = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+      //const client = await context.msGraphClientFactory.getClient('3');
+      //const message = "Hello from the web part!";
 
-      console.log(client);
+      //console.log(client);
       // Fetch Team ID
       //const teamsResponse: HttpClientResponse = await aadClient.get(
       //  `https://graph.microsoft.com/v1.0/me/joinedTeams`,
@@ -172,17 +173,15 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       //if (!team) throw new Error(`Team "${teamName}" not found`);
   
       // Fetch Team Tags (To get @expenses Tag ID)
-      const tagsResponse: HttpClientResponse = await client.get(
-        `https://graph.microsoft.com/v1.0/teams/${teamID}/tags`,
-        AadHttpClient.configurations.v1
-      );
-      if (!tagsResponse.ok) throw new Error("Failed to fetch tags");
+      //const tagsResponse = await client.api(`/teams/${teamID}/tags`).get();
+      
+      //if (!tagsResponse.ok) throw new Error("Failed to fetch tags");
 
-      const tagsData = await tagsResponse.json();
-      const expensesTag = tagsData.value.find((tag: any) => tag.displayName === "Expenses");
-      console.log("Expenses Tag:", expensesTag);
+      //const tagsData = await tagsResponse.json();
+      //const expensesTag = tagsData.value.find((tag: any) => tag.displayName === "expenses");
+      console.log("Expenses Tag:", tags[0].id);
 
-      if (!expensesTag) throw new Error(`Tag "@expenses" not found in team "${teamName}"`);
+      //if (!expensesTag) throw new Error(`Tag "@expenses" not found in team "${teamName}"`);
 
       // Fetch Channel ID
       //const channelsResponse: HttpClientResponse = await client.get(
@@ -199,6 +198,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       //console.log("sendmsg Channel:", channel);
   
       // 🔥 POST request to send message with @expenses mention
+/*
       const mentionId = 1; // You can keep this as 0 or another unique identifier, but it must match the ID in the <at> tag.
       const tagHTML = "<at id='1'>Expenses</at> ";
 
@@ -221,7 +221,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         ],
       });
 
-      const response = await client.post(
+      const response = await aadClient.post(
         `https://graph.microsoft.com/v1.0/teams/${teamID}/channels/${channelID}messages`,
         AadHttpClient.configurations.v1,
         {
@@ -237,7 +237,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
                 mentionText: "Expenses",
                 mentioned: {
                   tag: {
-                    id: tagID,
+                    id: expensesTag.id,
                     displayName: "Expenses",
                   },
                 },
@@ -253,7 +253,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         const errorText = await response.text();
         throw new Error(`Failed to send message: ${errorText}`);
       }
-  
+  */
     } catch (error: any) {
       console.error("Error sending message:", error.message);
     }
