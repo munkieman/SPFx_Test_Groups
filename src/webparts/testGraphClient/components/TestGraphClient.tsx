@@ -234,11 +234,11 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
             mentions: [
               {
                 id: mentionId,
-                mentionText: "expenses",
+                mentionText: "Expenses",
                 mentioned: {
                   tag: {
                     id: tagID,
-                    displayName: "expenses",
+                    displayName: "Expenses",
                   },
                 },
               },
