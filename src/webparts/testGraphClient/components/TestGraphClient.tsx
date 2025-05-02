@@ -4,7 +4,7 @@ import styles from './TestGraphClient.module.scss';
 import type { ITestGraphClientProps } from './ITestGraphClientProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { MSGraphClientV3 } from '@microsoft/sp-http';
-//import { AadHttpClient } from "@microsoft/sp-http";
+import { AadHttpClient } from "@microsoft/sp-http";
 
 //interface IMember {
 //  id: string;
@@ -54,9 +54,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   //const teamName = "ExpensesChat";
   //const channelName = "General";
   const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
-  //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2";
-  //const teamID = "68d9eb2c-06f7-40ed-bd99-a5a35fab0275";
-  //const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
+  const channelID = "19:WELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1@thread.tacv2";
   //const tagID = "NTA3NGI4Y2MtMTYwOC00YjQxLWFhZmQtMjY2MmRkNWY5YmZiIy…3LTQwZWQtYmQ5OS1hNWEzNWZhYjAyNzUjI3RndlFsV3dmTg==";
   //https://teams.microsoft.com/l/channel/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/General?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
   //https://teams.microsoft.com/l/team/19%3AWELxtb3PBurFUqD2tVetv08tqw2FzQqvWFIqgi3XO5E1%40thread.tacv2/conversations?groupId=68d9eb2c-06f7-40ed-bd99-a5a35fab0275&tenantId=5074b8cc-1608-4b41-aafd-2662dd5f9bfb
@@ -156,9 +154,9 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
   const sendMessageToTeams = async () : Promise<void> => {
     try {
 
-      //const aadClient = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
+      const aadClient = await context.aadHttpClientFactory.getClient("https://graph.microsoft.com");
       //const client = await context.msGraphClientFactory.getClient('3');
-      //const message = "Hello from the web part!";
+      const message = "Hello from the web part!";
 
       //console.log(client);
       // Fetch Team ID
@@ -198,7 +196,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       //console.log("sendmsg Channel:", channel);
   
       // 🔥 POST request to send message with @expenses mention
-/*
+
       const mentionId = 1; // You can keep this as 0 or another unique identifier, but it must match the ID in the <at> tag.
       const tagHTML = "<at id='1'>Expenses</at> ";
 
@@ -213,7 +211,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
             mentionText: "Expenses",
             mentioned: {
               tag: {
-                id: expensesTag.id,
+                id: tags[0].id,
                 displayName: "Expenses",
               },
             },
@@ -222,7 +220,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
       });
 
       const response = await aadClient.post(
-        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels/${channelID}messages`,
+        `https://graph.microsoft.com/v1.0/teams/${teamID}/channels/${channelID}/messages`,
         AadHttpClient.configurations.v1,
         {
           headers: { "Content-Type": "application/json" },
@@ -234,11 +232,11 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
             mentions: [
               {
                 id: mentionId,
-                mentionText: "Expenses",
+                mentionText: "expenses",
                 mentioned: {
                   tag: {
-                    id: expensesTag.id,
-                    displayName: "Expenses",
+                    id: tags[0].id,
+                    displayName: "expenses",
                   },
                 },
               },
@@ -253,7 +251,7 @@ const TestGraphClient: React.FC<ITestGraphClientProps> = (props) => {
         const errorText = await response.text();
         throw new Error(`Failed to send message: ${errorText}`);
       }
-  */
+
     } catch (error: any) {
       console.error("Error sending message:", error.message);
     }
