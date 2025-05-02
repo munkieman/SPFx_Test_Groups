@@ -1,8 +1,8 @@
-# test-groups
+# test-graphclient
 
 ## Summary
 
-Short summary on functionality and used technologies.
+This is to test the Graph API using the MSGraphClientV3 to connect to Teams
 
 [picture of the solution in action, if possible]
 
